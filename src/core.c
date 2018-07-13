@@ -23,7 +23,7 @@
 
 int mincf_parse_stream(confort *cfg, FILE *in) {
 
-    char ch = ' ';
+    int ch = ' ';
     int state = PST_B4LABEL;
     int pos = -1;
     int comment = 0;
