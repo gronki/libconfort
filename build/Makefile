@@ -3,16 +3,18 @@
 #------------------------------------------------------------------------------#
 
 prefix = /usr/local
+exec_prefix = $(prefix)
 includedir = $(prefix)/include
-libdir = $(prefix)/lib
-fmoddir = $(libdir)/gfortran/modules
+libdir = $(exec_prefix)/lib
+fmoddir = $(libdir)/finclude
 
 #------------------------------------------------------------------------------#
 
 CC := gcc
+CFLAGS := -O2
+
 FC := gfortran
-CFLAGS := -g -O2 -Wall
-FFLAGS := -g -O2 -Wall -pedantic -fimplicit-none -ffree-line-length-none
+FFLAGS := -O2
 
 OBJECTS := c_routines.o f_routines.o core.o confort.o
 VPATH := ../src
@@ -32,8 +34,6 @@ libconfort.a: $(OBJECTS)
 	$(CC) -fPIC $(INCLUDE) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
 %.o: %.f90
 	$(FC) -fPIC $(INCLUDE) $(FFLAGS) -c $< -o $@
-%.o: %.F90
-	$(FC) -fPIC $(INCLUDE) $(CPPFLAGS) $(FFLAGS) -c $< -o $@
 
 #------------------------------------------------------------------------------#
 
