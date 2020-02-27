@@ -55,7 +55,7 @@ module confort
 
   interface
     subroutine mincf_free(cfg) &
-      & bind(C,name='mincf_free')
+          & bind(C,name='mincf_free')
       use iso_c_binding
       import :: config
       type(config), intent(inout) :: cfg
@@ -64,21 +64,23 @@ module confort
 
 contains
 
+  !---------------------------------------------------------------------------!
+
   subroutine mincf_read_stdin(cfg,errno)
+
+    type(config), intent(inout) :: cfg
+    integer, intent(inout), optional :: errno
+    integer :: errno_local
 
     interface
       subroutine c_mincf_read_stdin(cfg,errno) &
-        & bind(C,name='fort_mincf_read_stdin')
+            & bind(C, name='fort_mincf_read_stdin')
         use iso_c_binding
         import :: config
         type(config), intent(inout) :: cfg
         integer(c_int), intent(out) :: errno
       end subroutine
     end interface
-
-    type(config), intent(inout) :: cfg
-    integer, intent(inout), optional :: errno
-    integer :: errno_local
 
     if ( present(errno) ) then
       call c_mincf_read_stdin(cfg,errno)
@@ -91,11 +93,18 @@ contains
     end if
   end subroutine
 
+  !---------------------------------------------------------------------------!
+
   subroutine mincf_read_file(cfg,fn,errno)
+
+    type(config), intent(inout) :: cfg
+    character(len=*), intent(in) :: fn
+    integer, intent(inout), optional :: errno
+    integer :: errno_local
 
     interface
       subroutine c_mincf_read_file(cfg,fn,sz,errno) &
-        & bind(C,name='fort_mincf_read_file')
+            & bind(C, name='fort_mincf_read_file')
         use iso_c_binding
         import :: config
         type(config), intent(inout) :: cfg
@@ -104,11 +113,6 @@ contains
         integer(c_int), intent(out) :: errno
       end subroutine
     end interface
-
-    type(config), intent(inout) :: cfg
-    character(len=*), intent(in) :: fn
-    integer, intent(inout), optional :: errno
-    integer :: errno_local
 
     if ( present(errno) ) then
       call c_mincf_read_file(cfg, fn, len(fn,c_size_t), errno)
@@ -122,11 +126,13 @@ contains
 
   end subroutine
 
+  !---------------------------------------------------------------------------!
+
   subroutine mincf_get_or_error(cfg,key,buf,errno)
 
     interface
       subroutine c_mincf_get(cfg,key,key_sz,buf,sz,errno) &
-        & bind(C,name='fort_mincf_get')
+            & bind(C, name='fort_mincf_get')
         use iso_c_binding
         import config
         type(config), intent(out) :: cfg
@@ -146,14 +152,14 @@ contains
 
     if ( present(errno) ) then
       call c_mincf_get(cfg, &
-      & key, len(key,c_size_t), &
-      & buf, len(buf,c_size_t), &
-      & errno)
+          & key, len(key,c_size_t), &
+          & buf, len(buf,c_size_t), &
+          & errno)
     else
       call c_mincf_get(cfg, &
-      & key, len(key,c_size_t), &
-      & buf, len(buf,c_size_t), &
-      & errno_local)
+          & key, len(key,c_size_t), &
+          & buf, len(buf,c_size_t), &
+          & errno_local)
       if ( errno_local .ne. 0 ) then
         call mincf_free(cfg)
         error stop "confort: fatal error while reading the configuration"
@@ -162,10 +168,16 @@ contains
 
   end subroutine
 
+  !---------------------------------------------------------------------------!
+
   logical function mincf_exists(cfg,key)
+    type(config), intent(out) :: cfg
+    character(len=*), intent(in) :: key
+    integer :: errno
+
     interface
       subroutine c_mincf_get_exists(cfg,key,key_sz,errno) &
-        & bind(C,name='fort_mincf_get_exists')
+            & bind(C, name='fort_mincf_get_exists')
         use iso_c_binding
         import config
         type(config), intent(out) :: cfg
@@ -174,19 +186,24 @@ contains
         integer(c_int), intent(out) :: errno
       end subroutine
     end interface
-    type(config), intent(out) :: cfg
-    character(len=*), intent(in) :: key
-    integer :: errno
 
     call c_mincf_get_exists(cfg, key, len(key,c_size_t), errno)
 
     mincf_exists = ( errno .eq. MINCF_OK )
   end function
 
+  !---------------------------------------------------------------------------!
+
   subroutine mincf_get_default(cfg,key,buf,defvalue,errno)
+    type(config), intent(out) :: cfg
+    character(len=*), intent(in) :: key, defvalue
+    character(len=*), intent(out) :: buf
+    integer, intent(inout), optional :: errno
+    integer :: errno_local
+
     interface
       subroutine c_mincf_get_default(cfg,key,key_sz,buf,sz,defvalue,defvalue_sz,errno) &
-        & bind(C,name='fort_mincf_get_default')
+            & bind(C, name='fort_mincf_get_default')
         use iso_c_binding
         import config
         type(config), intent(out) :: cfg
@@ -197,23 +214,19 @@ contains
         integer(c_int), intent(out) :: errno
       end subroutine
     end interface
-    type(config), intent(out) :: cfg
-    character(len=*), intent(in) :: key, defvalue
-    character(len=*), intent(out) :: buf
-    integer, intent(inout), optional :: errno
-    integer :: errno_local
 
     call c_mincf_get_default(cfg, &
-    & key, len(key,c_size_t), &
-    & buf, len(buf,c_size_t), &
-    & defvalue, len(defvalue,c_size_t), &
-    & errno_local)
+        & key, len(key,c_size_t), &
+        & buf, len(buf,c_size_t), &
+        & defvalue, len(defvalue,c_size_t), &
+        & errno_local)
 
     if ( present(errno) ) then
       errno = errno_local
     end if
   end subroutine
 
+  !---------------------------------------------------------------------------!
 
   subroutine mincf_print_error(errno,file,line)
     integer, intent(in) :: errno
@@ -239,5 +252,7 @@ contains
     if ( iand(errno,MINCF_MEMORY_ERROR) .ne. 0 ) &
     & write (0,"(A,': ',A)") trim(prefix),"Memory error"
   end subroutine
+
+  !---------------------------------------------------------------------------!
 
 end module
