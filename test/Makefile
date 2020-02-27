@@ -1,66 +1,21 @@
-#------------------------------------------------------------------------------#
-#------------------- Builds and run tests for libconfort ----------------------#
-#------------------------------------------------------------------------------#
+CC := gcc
+CFLAGS := -g
+FC := f95
+FFLAGS := -g -fcheck=all
+INCLUDE := -I ../build -I ../src
 
-FSOURCES 	 = $(wildcard test_*.F90)
-CSOURCES 	 = $(wildcard test_*.c)
-TESTS		 = $(FSOURCES:.F90=_f) $(CSOURCES:.c=_c)
-PROGS 	  	 = $(addprefix bin/,$(TESTS))
-CERTS 	  	 = $(addprefix out/,$(TESTS))
+all: test_c.txt test_f.txt
 
-#------------------------------------------------------------------------------#
+test_c.txt: test.c ../build/libconfort.a
+	$(CC) $(INCLUDE) $(CFLAGS) $(LDFLAGS) $^ $(LDLIBS) -o $@
+	./test_c &> test_c.txt
 
-CC  	 	 := gcc
-FC 		 	 := gfortran
+test_f.txt: test.F90 ../build/libconfort.a
+	$(FC) $(INCLUDE) $(FFLAGS) $(LDFLAGS) $^ $(LDLIBS) -o $@
+	./test_f &> test_f.txt
 
-CFLAGS 	 	 := -g -ggdb -Og -Wall
-FFLAGS	 	 := $(CFLAGS) -fbackslash -fcheck=all -fbacktrace \
-	-pedantic -fimplicit-none -ffree-line-length-none
-CPPFLAGS	 := -D__CONFORT_DEBUG
-
-INCLUDE	 	 := -I. -I../build -I../src
-
-#------------------------------------------------------------------------------#
-
-all: $(CERTS)
-
-#------------------------------------------------------------------------------#
-
-out/%: bin/%
-	mkdir -p out
-	bash runtest.sh $(subst out/,,$@)
-
-bin/%_f: common.o %.F90 ../build/libconfort.a
-	mkdir -p bin
-	$(FC) $(INCLUDE) $(FFLAGS) $(LDFLAGS) -L.. $^ -o $@
-
-bin/%_c: common_c.o %.c ../build/libconfort.a
-	mkdir -p bin
-	$(CC) $(INCLUDE) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) -L.. $^ -o $@
-
-#------------------------------------------------------------------------------#
-
-%.o: %.c
-	$(CC)  $(INCLUDE) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
-%.o: %.F90
-	$(FC)  $(INCLUDE) $(CPPFLAGS) $(FFLAGS) -c $< -o $@
-
-#------------------------------------------------------------------------------#
-
-../build/libconfort.a: $(wildcard ../src/*.F90) $(wildcard ../src/*.c) \
-		$(wildcard ../src/*.h)
-	$(MAKE) -C ../build CC="$(CC)" CFLAGS="$(CFLAGS)" \
-		FC="$(FC)" FFLAGS="$(FFLAGS)" CPPFLAGS="$(CPPFLAGS)"
-
-#------------------------------------------------------------------------------#
+../build/libconfort.a:
+	$(MAKE) -C ../build
 
 clean:
-	$(RM) -rv *.o *.mod *.pass *.fail bin out
-
-#------------------------------------------------------------------------------#
-
-.PHONY: all clean
-
-.SECONDARY: $(PROGS)
-
-#------------------------------------------------------------------------------#
+	$(RM) test_c test_f

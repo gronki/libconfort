@@ -1,13 +1,21 @@
 #include <confort.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include "common.h"
+
+#define test(x) test0(__FILE__,__LINE__,x,#x)
+int test0(char *file, unsigned int line, int expr, char *descr);
 
 int main() {
     confort cfg;
     char buf[1024];
     char defvalue[] = "bu bu buuu";
     int ret;
+
+    ret = mincf_read(&cfg,"nonexistent.cfg");
+    test( ret != MINCF_OK );
+    test( ret & MINCF_ERROR );
+    test( ret & MINCF_FILE_NOT_FOUND );
+    mincf_free(&cfg);
 
     if (test(mincf_read(&cfg,"test.cfg") == MINCF_OK)) {
         ret = mincf_exists(&cfg,"thiskeydoesnotexist");
@@ -35,4 +43,11 @@ int main() {
     }
 
     return 0;
+}
+
+int test0(char *file, unsigned int line, int expr, char *descr) {
+    printf("%s has %s the test (line %d): %s\n",
+        file, expr ? "PASSED" : "FAILED",
+        line, descr);
+    return expr;
 }

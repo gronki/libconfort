@@ -1,0 +1,15 @@
+test.F90 line 34: There was an error.
+test.F90 line 34: The entry was not found.
+test.F90 has PASSED the test (line 23): errno .ne. 0
+test.F90 has PASSED the test (line 28): errno .eq. MINCF_OK
+test.F90 has PASSED the test (line 30):  mincf_exists(cfg,key_ok) 
+test.F90 has PASSED the test (line 31):  .not. mincf_exists(cfg,key_wrong) 
+test.F90 has PASSED the test (line 35): iand(errno, MINCF_NOT_FOUND) .ne. 0
+test.F90 has PASSED the test (line 39): iand(errno, MINCF_NOT_FOUND) .eq. 0
+test.F90 has PASSED the test (line 40): buf .eq. value_ok
+test.F90 has PASSED the test (line 44): iand(errno, MINCF_NOT_FOUND) .eq. 0
+test.F90 has PASSED the test (line 45): buf .eq. def
+test.F90 has PASSED the test (line 49): errno .eq. MINCF_OK
+test.F90 has PASSED the test (line 52): errno .eq. MINCF_OK
+test.F90 has PASSED the test (line 53): buf .eq. 'A very short comment.'
+buffer content: A very short comment.                                                                                                                                 

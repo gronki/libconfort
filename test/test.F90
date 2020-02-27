@@ -1,10 +1,11 @@
-program test_nonexistent_key
+program test_confort
 
     use confort
     use iso_fortran_env
     use iso_c_binding
-    use tests_common
-#   include <macros>
+
+#   define test(x) test0(__FILE__,__LINE__,x,"x")
+#   define ftest(x) ftest0(__FILE__,__LINE__,x,"x")
 
     type(config) :: cfg
     character(len=150) :: buf
@@ -14,6 +15,12 @@ program test_nonexistent_key
     character(len=*), parameter :: key_ok = "key1"
     character(len=*), parameter :: value_ok = "value1"
     character(len=*), parameter :: def = "domyslna"
+
+    character(len=*), parameter :: fnbad = "Tegoplikuniema"
+
+    call mincf_read_file(cfg, fnbad, errno)
+    call test(errno .ne. 0)
+    call mincf_free(cfg)
 
     call mincf_read_file(cfg, fn, errno)
 
@@ -46,9 +53,38 @@ program test_nonexistent_key
             write(6, "('buffer content: ',A)") buf
         end if
 
-
         call mincf_free(cfg)
 
     end if
+
+contains
+
+    subroutine test0(file,line,l,name)
+        character(len=*), intent(in) :: file,name
+        integer, intent(in) :: line
+        logical, intent(in) :: l
+        character(len=*), parameter :: fmt = '(A," has ",A," the test (line ",I0,"): ",A)'
+
+        if (l) then
+            write (*,fmt)  file,  "PASSED", line, name
+        else
+            write (*,fmt)  file,  "FAILED", line, name
+        end if
+    end subroutine
+
+    logical function ftest0(file,line,l,name)
+        character(len=*), intent(in) :: file,name
+        integer, intent(in) :: line
+        logical, intent(in) :: l
+        character(len=*), parameter :: fmt = '(A," has ",A," the test (line ",I0,"): ",A)'
+
+        if (l) then
+            write (*,fmt)  file,  "PASSED", line, name
+        else
+            write (*,fmt)  file,  "FAILED", line, name
+        end if
+
+        ftest0 = l
+    end function
 
 end program

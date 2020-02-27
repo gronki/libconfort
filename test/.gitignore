@@ -1,4 +1,2 @@
-/bin
-/out
-*.pass
-*.fail
+/test_c
+/test_f

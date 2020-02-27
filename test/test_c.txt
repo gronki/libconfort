@@ -1,0 +1,19 @@
+test.c has PASSED the test (line 15): ret != MINCF_OK
+test.c has PASSED the test (line 16): ret & MINCF_ERROR
+test.c has PASSED the test (line 17): ret & MINCF_FILE_NOT_FOUND
+test.c has PASSED the test (line 20): mincf_read(&cfg,"test.cfg") == MINCF_OK
+test.c has PASSED the test (line 22): ret != MINCF_OK
+test.c has PASSED the test (line 23): (ret & MINCF_ERROR) == 0
+test.c has PASSED the test (line 24): (ret & MINCF_NOT_FOUND) != 0
+MINCF_OK 0000
+MINCF_ERROR 0001
+MINCF_NOT_FOUND 0020
+test.c has PASSED the test (line 30): ret == MINCF_OK
+test.c has PASSED the test (line 31): (ret & MINCF_ERROR) == 0
+test.c has PASSED the test (line 32): (ret & MINCF_NOT_FOUND) == 0
+test.c has PASSED the test (line 34): mincf_get(&cfg,"key1",buf,sizeof(buf),NULL) == MINCF_OK
+test.c has PASSED the test (line 35): !strcmp(buf,"value1")
+test.c has PASSED the test (line 37): mincf_get(&cfg,"test_overwrite_1",buf,sizeof(buf),NULL) == MINCF_OK
+test.c has PASSED the test (line 38): mincf_get(&cfg,"test_overwrite_2",buf,sizeof(buf),defvalue) == MINCF_OK
+test.c has PASSED the test (line 39): !strcmp(buf,"A very short comment.")
+buffer content: 'A very short comment.'
